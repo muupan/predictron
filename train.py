@@ -17,7 +17,7 @@ def generate_maze(size=20):
 
 
 def is_maze_connected(maze):
-    """Check if a given maze is solvable by the right-hand rule."""
+    """Check if a given maze is solvable."""
     maze = np.pad(maze, 1, 'constant', constant_values=1)  # Pad with walls
     visited = np.zeros_like(maze)
     src = (1, 1)
