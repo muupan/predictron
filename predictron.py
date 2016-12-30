@@ -76,8 +76,11 @@ class PredictronCore(chainer.Chain):
 
 class Predictron(chainer.Chain):
 
-    def __init__(self, n_tasks, n_channels, model_steps, usage_weighting=True):
+    def __init__(self, n_tasks, n_channels, model_steps,
+                 use_reward_gamma=True, use_lambda=True, usage_weighting=True):
         self.model_steps = model_steps
+        self.use_reward_gamma = use_reward_gamma
+        self.use_lambda = use_lambda
         self.usage_weighting = usage_weighting
         super().__init__(
             obs2state=Sequence(
@@ -107,6 +110,11 @@ class Predictron(chainer.Chain):
         gamma_prod = 1
         for k in range(self.model_steps):
             state, reward, gamma, lmbda = self.core(state, test=test)
+            if not self.use_reward_gamma:
+                reward = 0
+                gamma = 1
+            if not self.use_lambda:
+                lmbda = 1
             lambda_k.append(lmbda)  # lambda^k
             v = self.state2value(state, test=test)
             reward_sum += gamma_prod * reward

@@ -79,6 +79,12 @@ def main():
                         help='Number of channels for hidden units')
     parser.add_argument('--maze-size', type=int, default=20,
                         help='Size of random mazes')
+    parser.add_argument('--use-reward-gamma', type=bool, default=True,
+                        help='Use reward and gamma')
+    parser.add_argument('--use-lambda', type=bool, default=True,
+                        help='Use lambda-network')
+    parser.add_argument('--usage-weighting', type=bool, default=True,
+                        help='Enable usage weighting')
     parser.add_argument('--n-unsupervised-updates', type=int, default=0,
                         help='Number of unsupervised upates per supervised'
                              'updates')
@@ -90,7 +96,10 @@ def main():
 
     # chainer.set_debug(True)
     model = Predictron(n_tasks=1, n_channels=args.n_channels,
-                       model_steps=args.n_model_steps)
+                       model_steps=args.n_model_steps,
+                       use_reward_gamma=args.use_reward_gamma,
+                       use_lambda=args.use_lambda,
+                       usage_weighting=args.usage_weighting)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu(args.gpu)
