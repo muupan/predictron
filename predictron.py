@@ -141,7 +141,7 @@ class Predictron(chainer.Chain):
         else:
             g_k_loss = sum(F.mean_squared_error(g, t) for g in g_k) / len(g_k)
         g_lambda_loss = F.mean_squared_error(g_lambda, t)
-        return g_k_loss + g_lambda_loss
+        return g_k_loss, g_lambda_loss
 
     def unsupervised_loss(self, x):
         g_k, g_lambda, w_k = self.unroll(x, test=False)

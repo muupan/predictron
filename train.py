@@ -113,7 +113,8 @@ def main():
             x = chainer.cuda.to_gpu(x)
             t = chainer.cuda.to_gpu(t)
         model.cleargrads()
-        supervised_loss = model.supervised_loss(x, t)
+        g_k_loss, g_lambda_loss = model.supervised_loss(x, t)
+        supervised_loss = g_k_loss + g_lambda_loss
         supervised_loss.backward()
         opt.update()
         for _ in range(args.n_unsupervised_updates):
@@ -125,7 +126,8 @@ def main():
             unsupervised_loss = model.unsupervised_loss(x)
             unsupervised_loss.backward()
             opt.update()
-        print(i, supervised_loss.data)
+        print(i, g_k_loss.data, g_lambda_loss.data,
+              (g_lambda_loss.data ** 0.5))
 
 
 if __name__ == '__main__':
