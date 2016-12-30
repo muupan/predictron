@@ -136,7 +136,7 @@ class Predictron(chainer.Chain):
     def supervised_loss(self, x, t):
         g_k, g_lambda, w_k = self.unroll(x, test=False)
         if self.usage_weighting:
-            g_k_loss = sum(F.sum(w * 0.5 * (g - t) ** 2) / x.shape[0]
+            g_k_loss = sum(F.sum(w * (g - t) ** 2) / x.shape[0]
                            for g, w in zip(g_k, w_k))
         else:
             g_k_loss = sum(F.mean_squared_error(g, t) for g in g_k) / len(g_k)
@@ -148,7 +148,7 @@ class Predictron(chainer.Chain):
         # Only update g_k
         g_lambda.creator = None
         if self.usage_weighting:
-            return sum(F.sum(w * 0.5 * (g - g_lambda) ** 2) / x.shape[0]
+            return sum(F.sum(w * (g - g_lambda) ** 2) / x.shape[0]
                        for g, w in zip(g_k, w_k))
         else:
             return sum(F.mean_squared_error(g, g_lambda) for g in g_k) / len(g_k)
