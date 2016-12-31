@@ -16,27 +16,24 @@ def generate_maze(size=20):
     return maze
 
 
-def is_maze_connected(maze):
-    """Check if a given maze is solvable."""
+def check_connectivity_to_right_bottom(maze):
     maze = np.pad(maze, 1, 'constant', constant_values=1)  # Pad with walls
     visited = np.zeros_like(maze)
-    src = (1, 1)
     dst = (maze.shape[0] - 2, maze.shape[1] - 2)
 
     def search(pos):
-        if pos == dst:
-            return True
         if visited[pos]:
-            return False
+            return
         if maze[pos]:
-            return False
+            return
         visited[pos] = 1
-        return (search((pos[0] + 1, pos[1])) or
-                search((pos[0] - 1, pos[1])) or
-                search((pos[0], pos[1] + 1)) or
-                search((pos[0], pos[1] - 1)))
+        search((pos[0] + 1, pos[1]))
+        search((pos[0] - 1, pos[1]))
+        search((pos[0], pos[1] + 1))
+        search((pos[0], pos[1] - 1))
 
-    return search(src)
+    search(dst)
+    return np.diagonal(visited[1:-1, 1:-1])
 
 
 def phi(maze):
@@ -49,9 +46,9 @@ def generate_supervised_batch(maze_size=20, batch_size=100):
     ts = []
     for b in range(batch_size):
         maze = generate_maze(maze_size)
-        connected = is_maze_connected(maze)
+        connectivity = check_connectivity_to_right_bottom(maze)
         xs.append(phi(maze))
-        ts.append([connected])
+        ts.append(connectivity)
     x = np.asarray(xs, dtype=np.float32)
     t = np.asarray(ts, dtype=np.float32)
     return x, t
@@ -95,7 +92,7 @@ def main():
     args = parser.parse_args()
 
     # chainer.set_debug(True)
-    model = Predictron(n_tasks=1, n_channels=args.n_channels,
+    model = Predictron(n_tasks=args.maze_size, n_channels=args.n_channels,
                        model_steps=args.n_model_steps,
                        use_reward_gamma=args.use_reward_gamma,
                        use_lambda=args.use_lambda,
